@@ -1,6 +1,7 @@
 # T/A-30 Northstar
 ![1000113907](https://github.com/user-attachments/assets/8c5a2b57-b27e-4e9c-bf4c-c5299891f8b8)
 Thumbnail courtesy of Dr Adler
+
 [Livery](https://steamcommunity.com/sharedfiles/filedetails/?id=3195389280)
 ## Description
 

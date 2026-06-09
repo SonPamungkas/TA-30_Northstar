@@ -23,8 +23,8 @@ Culmination of "Project: Northstar" which originally engineered to train Cosmona
 
 ### 🛡️ Airframe Hardening & Control
 
-* **Structural Integrity:** To survive the punishing kinetic and thermal stresses of low-altitude supersonic flight, part durability is increased **3×** to absorb severe combat damage. Airbrake joints are heavily reinforced with titanium-carbon weaves for safe, high-speed deployment.
-* **Fly-By-Wire (FBW) Tuning:** The restrictive training-commission safety limiters have been completely overwritten. Custom automatic pitch and roll damping now activates above **Mach 1.0** to eliminate the violent transonic aerodynamic instability that plagued early prototypes.
+* **Structural Integrity:** To survive the punishing kinetic and thermal stresses of low-altitude supersonic flight, part durability is increased **6.7×** to absorb severe combat damage. Airbrake joints are heavily reinforced with titanium-carbon weaves for safe, high-speed deployment.
+* **Fly-By-Wire (FBW) Tuning:** The restrictive training-commission safety limiters have been completely overwritten. Custom automatic pitch and roll damping now activates above **Mach 0.5** to eliminate the violent transonic aerodynamic instability that plagued early prototypes.
 * **Thermal/Speed Tolerances:** Cockpit overspeed warnings safely suppressed up to **800 m/s**, unlocking the true, unrestricted physical threshold of Project: Northstar's final iteration.
 
 ## Compatibility

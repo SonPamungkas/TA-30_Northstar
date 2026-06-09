@@ -1,10 +1,10 @@
-# T/A-30+ Northstar
+# T/A-30 Northstar
 ![1000113907](https://github.com/user-attachments/assets/8c5a2b57-b27e-4e9c-bf4c-c5299891f8b8)
 Thumbnail courtesy of Dr Adler
 [Livery](https://steamcommunity.com/sharedfiles/filedetails/?id=3195389280)
 ## Description
 
-The definitive culmination of "Project: Northstar," originally engineered to train Cosmonauts across Primeva in advanced spacecraft operations. This overhaul transforms a once-docile, subsonic introductory airframe into a hard-hitting, supersonic strike platform. Every core system has been completely redesigned—including propulsion, avionics, power distribution, structural integrity, and flight control software.
+Culmination of "Project: Northstar" which originally engineered to train Cosmonauts across Primeva in advanced spacecraft operations. This overhaul transforms a once-docile, subsonic introductory airframe into a hard-hitting, supersonic strike platform. Every core system has been completely redesigned—including propulsion, avionics, power distribution, structural integrity, and flight control software.
 
 ## Key Features
 

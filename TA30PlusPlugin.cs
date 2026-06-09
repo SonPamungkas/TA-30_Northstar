@@ -34,12 +34,15 @@ namespace TA30Plus
         // HUD
         internal const float OverspeedThreshold      = 800f;
         // FBW
-        internal const float FBWMachThreshold        = 1.0f;
+        internal const float FBWMachThreshold        = 0.5f;
         // Airframe
-        internal const float AirframeHPMultiplier    = 3f;
+        internal const float AirframeHPMultiplier    = 6.7f;
 
-        internal static bool scramjetActive = false;
-        internal static bool flameout       = false;
+        internal static readonly Dictionary<int, bool> scramjetActiveMap = new Dictionary<int, bool>();
+        internal static readonly Dictionary<int, bool> flameoutMap       = new Dictionary<int, bool>();
+
+        internal static bool GetScramjetActive(int id) => scramjetActiveMap.TryGetValue(id, out var v) && v;
+        internal static bool GetFlameout(int id)       => flameoutMap.TryGetValue(id, out var v) && v;
 
         private static bool _detectedKeyLogged = false;
 
@@ -118,9 +121,11 @@ namespace TA30Plus
 
                 int id    = __instance.GetInstanceID();
                 bool first = !logged.Contains(id);
+                int aircraftId = aircraft.GetInstanceID();
 
                 float alt = __instance.transform.position.y - Datum.originPosition.y;
-                flameout = alt >= FlameoutAltM;
+                bool flameout = alt >= FlameoutAltM;
+                flameoutMap[aircraftId] = flameout;
 
                 if (flameout)
                 {
@@ -140,7 +145,7 @@ namespace TA30Plus
                     wasFlameout = flameout;
                 }
 
-                float target = scramjetActive ? ScramjetThrustPerEngine : ThrustPerEngine;
+                float target = GetScramjetActive(aircraftId) ? ScramjetThrustPerEngine : ThrustPerEngine;
                 if (Math.Abs(__instance.maxThrust - target) > 1f)
                     __instance.maxThrust = target;
 
@@ -173,9 +178,11 @@ namespace TA30Plus
                 var aircraft = aircraftField?.GetValue(__instance) as Aircraft;
                 if (!IsCompass(aircraft)) return;
 
-                if (flameout)
+                int aircraftId = aircraft.GetInstanceID();
+
+                if (GetFlameout(aircraftId))
                 {
-                    scramjetActive = false;
+                    scramjetActiveMap[aircraftId] = false;
                     thrustField?.SetValue(__instance, 0f);
                     return;
                 }
@@ -184,23 +191,26 @@ namespace TA30Plus
                 float sos  = Mathf.Max(-0.005f * alt + 340f, 290f);
                 float mach = aircraft.speed / sos;
 
+                bool wasActive = GetScramjetActive(aircraftId);
                 bool shouldBeActive = mach >= ScramjetMinMach;
-                if (scramjetActive && !shouldBeActive)
-                    scramjetActive = mach >= ScramjetMinMach * 0.9f;
+                bool nowActive;
+                if (wasActive && !shouldBeActive)
+                    nowActive = mach >= ScramjetMinMach * 0.9f;
                 else
-                    scramjetActive = shouldBeActive;
+                    nowActive = shouldBeActive;
+                scramjetActiveMap[aircraftId] = nowActive;
 
-                if (scramjetActive != wasScramjet)
+                if (nowActive != wasScramjet)
                 {
-                    Log.LogInfo("[Scramjet] " + (scramjetActive ? "ON" : "OFF") +
+                    Log.LogInfo("[Scramjet] " + (nowActive ? "ON" : "OFF") +
                                 " — Mach " + mach.ToString("F2") + " alt " + alt.ToString("F0") + " m");
-                    wasScramjet = scramjetActive;
+                    wasScramjet = nowActive;
                 }
 
                 _machLogTimer += Time.fixedDeltaTime;
                 if (_machLogTimer >= 3f)
                 {
-                    Log.LogInfo("[Scramjet] Mach=" + mach.ToString("F2") + " active=" + scramjetActive);
+                    Log.LogInfo("[Scramjet] Mach=" + mach.ToString("F2") + " active=" + nowActive);
                     _machLogTimer = 0f;
                 }
             }
@@ -369,6 +379,7 @@ namespace TA30Plus
         [HarmonyPatch(typeof(FlightHud), "Update")]
         public static class ScramjetHudPatch
         {
+            private static readonly FieldInfo hudAircraftField = AccessTools.Field(typeof(FlightHud), "aircraft");
             private static GameObject hudObject;
             private static Text hudText;
             private static bool wasActive = false;
@@ -411,14 +422,17 @@ namespace TA30Plus
                     catch { return; }
                 }
 
-                if (scramjetActive != wasActive)
+                var aircraft = hudAircraftField?.GetValue(__instance) as Aircraft;
+                bool active = aircraft != null && IsCompass(aircraft) && GetScramjetActive(aircraft.GetInstanceID());
+
+                if (active != wasActive)
                 {
-                    hudObject.SetActive(scramjetActive);
-                    wasActive = scramjetActive;
-                    if (scramjetActive) pulseTimer = 0f;
+                    hudObject.SetActive(active);
+                    wasActive = active;
+                    if (active) pulseTimer = 0f;
                 }
 
-                if (scramjetActive && hudText != null)
+                if (active && hudText != null)
                 {
                     pulseTimer += Time.deltaTime;
                     float alpha = 0.7f + 0.3f * Mathf.Sin(pulseTimer * 3f);
@@ -473,6 +487,13 @@ namespace TA30Plus
                     maxHPField.SetValue(__instance, v * AirframeHPMultiplier);
                     Log.LogInfo("[Airframe] " + __instance.gameObject.name + " maxHP " + v + " -> " + (v * AirframeHPMultiplier));
                 }
+
+                foreach (var j in __instance.GetComponents<FixedJoint>())
+                {
+                    j.breakForce  = float.PositiveInfinity;
+                    j.breakTorque = float.PositiveInfinity;
+                }
+
                 reinforced.Add(id);
             }
         }
